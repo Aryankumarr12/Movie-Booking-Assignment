@@ -1,0 +1,23 @@
+#ifndef UPIPAYMENT_CPP
+#define UPIPAYMENT_CPP
+
+#include <iostream>
+#include "Payment.cpp"
+
+using namespace std;
+
+class UpiPayment : public Payment {
+
+public:
+    bool pay(double amount) override {
+
+        cout << "\nProcessing UPI payment of Rs. "
+             << amount << "...\n";
+
+        cout << "UPI payment successful.\n";
+
+        return true;
+    }
+};
+
+#endif
