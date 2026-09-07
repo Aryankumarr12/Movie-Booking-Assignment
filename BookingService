@@ -1,0 +1,162 @@
+#ifndef BOOKINGSERVICE_CPP
+#define BOOKINGSERVICE_CPP
+
+#include <iostream>
+#include <vector>
+#include <memory>
+
+#include "Show.cpp"
+#include "Booking.cpp"
+#include "PriceCalculator.cpp"
+#include "TicketPrinter.cpp"
+#include "UpiPayment.cpp"
+#include "CardPayment.cpp"
+#include "CashPayment.cpp"
+
+using namespace std;
+
+class BookingService {
+private:
+
+    PriceCalculator priceCalculator;
+    TicketPrinter ticketPrinter;
+
+public:
+
+    Booking* createBooking(
+        Show& show,
+        vector<int> seatNumbers
+    ) {
+
+        vector<int> prices;
+
+        for (int seatNumber : seatNumbers) {
+
+            ShowSeat* seat =
+                show.findSeat(seatNumber);
+
+            if (seat == nullptr) {
+
+                cout << "ERROR: Invalid seat number "
+                     << seatNumber << ".\n";
+
+                return nullptr;
+            }
+
+            if (!seat->isAvailable()) {
+
+                cout << "ERROR: Seat "
+                     << seatNumber
+                     << " is already BOOKED.\n";
+
+                return nullptr;
+            }
+
+            prices.push_back(seat->getPrice());
+        }
+
+        int total =
+            priceCalculator.calculateTotal(prices);
+
+        for (int seatNumber : seatNumbers) {
+
+            ShowSeat* seat =
+                show.findSeat(seatNumber);
+
+            seat->book();
+        }
+
+        Booking* booking = new Booking(
+            show.getMovie()->getTitle(),
+            show.getScreen()->getScreenNumber(),
+            show.getStartTime(),
+            seatNumbers,
+            total
+        );
+
+        return booking;
+    }
+
+    bool makePayment(
+        Booking& booking,
+        Show& show,
+        int paymentChoice
+    ) {
+
+        Payment* payment = nullptr;
+
+        if (paymentChoice == 1) {
+            payment = new UpiPayment();
+        }
+        else if (paymentChoice == 2) {
+            payment = new CardPayment();
+        }
+        else if (paymentChoice == 3) {
+            payment = new CashPayment();
+        }
+        else {
+            cout << "Invalid payment choice.\n";
+            return false;
+        }
+
+        bool success =
+            payment->pay(booking.getTotalAmount());
+
+        delete payment;
+
+        if (success) {
+
+            booking.confirm();
+
+            cout << "\nBooking confirmed successfully!\n";
+
+            ticketPrinter.printTicket(booking);
+
+            return true;
+        }
+
+        for (int seatNumber :
+             booking.getSeatNumbers()) {
+
+            ShowSeat* seat =
+                show.findSeat(seatNumber);
+
+            if (seat != nullptr) {
+                seat->release();
+            }
+        }
+
+        cout << "\nPayment failed.\n";
+        cout << "Booking NOT confirmed.\n";
+        cout << "Seats released.\n";
+
+        return false;
+    }
+
+    void cancelBooking(
+        Booking& booking,
+        Show& show
+    ) {
+
+        for (int seatNumber :
+             booking.getSeatNumbers()) {
+
+            ShowSeat* seat =
+                show.findSeat(seatNumber);
+
+            if (seat != nullptr) {
+                seat->release();
+            }
+        }
+
+        booking.cancel();
+
+        cout << "\nBooking "
+             << booking.getBookingId()
+             << " cancelled successfully.\n";
+
+        cout << "Seats are AVAILABLE again.\n";
+    }
+};
+
+#endif
