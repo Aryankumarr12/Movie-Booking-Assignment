@@ -1,0 +1,36 @@
+#ifndef CINEMA_CPP
+#define CINEMA_CPP
+
+#include <vector>
+#include <string>
+#include "Screen.cpp"
+
+using namespace std;
+
+class Cinema {
+private:
+    string name;
+    vector<Screen> screens;
+
+public:
+    Cinema(string name)
+        : name(name) {}
+
+    void addScreen(const Screen& screen) {
+        screens.push_back(screen);
+    }
+
+    string getName() const {
+        return name;
+    }
+
+    vector<Screen>& getScreens() {
+        return screens;
+    }
+
+    const vector<Screen>& getScreens() const {
+        return screens;
+    }
+};
+
+#endif
