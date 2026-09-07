@@ -1,0 +1,83 @@
+#ifndef BOOKING_CPP
+#define BOOKING_CPP
+
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+class Booking {
+private:
+
+    static int nextBookingId;
+
+    int bookingId;
+    string movieName;
+    int screenNumber;
+    string startTime;
+
+    vector<int> seatNumbers;
+
+    double totalAmount;
+    bool confirmed;
+
+public:
+
+    Booking(
+        string movieName,
+        int screenNumber,
+        string startTime,
+        vector<int> seatNumbers,
+        double totalAmount
+    )
+        : movieName(movieName),
+          screenNumber(screenNumber),
+          startTime(startTime),
+          seatNumbers(seatNumbers),
+          totalAmount(totalAmount),
+          confirmed(false) {
+
+        this->bookingId = nextBookingId++;
+    }
+
+    void confirm() {
+        confirmed = true;
+    }
+
+    void cancel() {
+        confirmed = false;
+    }
+
+    int getBookingId() const {
+        return bookingId;
+    }
+
+    string getMovieName() const {
+        return movieName;
+    }
+
+    int getScreenNumber() const {
+        return screenNumber;
+    }
+
+    string getStartTime() const {
+        return startTime;
+    }
+
+    vector<int> getSeatNumbers() const {
+        return seatNumbers;
+    }
+
+    double getTotalAmount() const {
+        return totalAmount;
+    }
+
+    bool isConfirmed() const {
+        return confirmed;
+    }
+};
+
+int Booking::nextBookingId = 1001;
+
+#endif
