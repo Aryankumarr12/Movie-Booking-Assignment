@@ -1,0 +1,79 @@
+#ifndef SHOW_CPP
+#define SHOW_CPP
+
+#include <iostream>
+#include <vector>
+#include <string>
+
+#include "Movie.cpp"
+#include "Screen.cpp"
+#include "ShowSeat.cpp"
+
+using namespace std;
+
+class Show {
+private:
+    Movie* movie;
+    Screen* screen;
+    string startTime;
+    vector<ShowSeat> showSeats;
+
+public:
+    Show(Movie* movie, Screen* screen, string startTime)
+        : movie(movie),
+          screen(screen),
+          startTime(startTime) {
+
+        for (const Seat& seat : screen->getSeats()) {
+            showSeats.push_back(ShowSeat(seat));
+        }
+    }
+
+    Movie* getMovie() const {
+        return movie;
+    }
+
+    Screen* getScreen() const {
+        return screen;
+    }
+
+    string getStartTime() const {
+        return startTime;
+    }
+
+    vector<ShowSeat>& getShowSeats() {
+        return showSeats;
+    }
+
+    void displaySeats() const {
+        cout << "\n--------- SEAT LAYOUT ---------\n";
+
+        for (const ShowSeat& ss : showSeats) {
+
+            cout << "Seat " << ss.getSeatNumber()
+                 << " [" << ss.getTypeName() << "] - ";
+
+            if (ss.isAvailable())
+                cout << "AVAILABLE";
+            else
+                cout << "BOOKED";
+
+            cout << endl;
+        }
+
+        cout << "-------------------------------\n";
+    }
+
+    ShowSeat* findSeat(int seatNumber) {
+
+        for (ShowSeat& ss : showSeats) {
+            if (ss.getSeatNumber() == seatNumber) {
+                return &ss;
+            }
+        }
+
+        return nullptr;
+    }
+};
+
+#endif
