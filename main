@@ -1,0 +1,361 @@
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+#include "Movie.cpp"
+#include "Seat.cpp"
+#include "ShowSeat.cpp"
+#include "Screen.cpp"
+#include "Cinema.cpp"
+#include "Show.cpp"
+#include "Customer.cpp"
+#include "Payment.cpp"
+#include "UpiPayment.cpp"
+#include "CardPayment.cpp"
+#include "CashPayment.cpp"
+#include "PriceCalculator.cpp"
+#include "Booking.cpp"
+#include "TicketPrinter.cpp"
+#include "BookingService.cpp"
+
+
+int main() {
+
+
+    Cinema cinema("INOX Cinema");
+
+
+    Screen screen1(1);
+
+    screen1.addSeat(
+        Seat(1, SeatType::SILVER)
+    );
+
+    screen1.addSeat(
+        Seat(2, SeatType::SILVER)
+    );
+
+    screen1.addSeat(
+        Seat(3, SeatType::GOLD)
+    );
+
+    screen1.addSeat(
+        Seat(4, SeatType::GOLD)
+    );
+
+    screen1.addSeat(
+        Seat(5, SeatType::PLATINUM)
+    );
+
+
+    Screen screen2(2);
+
+    screen2.addSeat(
+        Seat(1, SeatType::SILVER)
+    );
+
+    screen2.addSeat(
+        Seat(2, SeatType::SILVER)
+    );
+
+    screen2.addSeat(
+        Seat(3, SeatType::GOLD)
+    );
+
+    screen2.addSeat(
+        Seat(4, SeatType::GOLD)
+    );
+
+    screen2.addSeat(
+        Seat(5, SeatType::PLATINUM)
+    );
+
+
+    cinema.addScreen(screen1);
+    cinema.addScreen(screen2);
+
+
+    Movie movie1(
+        "Avengers",
+        "English",
+        150
+    );
+
+    Movie movie2(
+        "Inception",
+        "English",
+        148
+    );
+
+
+
+    vector<Show> shows;
+
+    shows.emplace_back(
+        &movie1,
+        &cinema.getScreens()[0],
+        "10:00 AM"
+    );
+
+    shows.emplace_back(
+        &movie1,
+        &cinema.getScreens()[1],
+        "02:00 PM"
+    );
+
+    shows.emplace_back(
+        &movie2,
+        &cinema.getScreens()[0],
+        "07:00 PM"
+    );
+
+
+    BookingService bookingService;
+
+    Booking* currentBooking = nullptr;
+
+    int choice;
+
+
+    do {
+
+        cout << "\n";
+        cout << "========================================\n";
+        cout << "       MOVIE TICKET BOOKING SYSTEM\n";
+        cout << "========================================\n";
+
+        cout << "1. List Movies\n";
+        cout << "2. List Shows\n";
+        cout << "3. View Seats\n";
+        cout << "4. Book Ticket\n";
+        cout << "5. Cancel Booking\n";
+        cout << "6. Exit\n";
+
+        cout << "Enter choice: ";
+        cin >> choice;
+
+
+        if (choice == 1) {
+
+            cout << "\n--------- MOVIES ---------\n";
+
+            cout << "1. ";
+            movie1.display();
+            cout << endl;
+
+            cout << "2. ";
+            movie2.display();
+            cout << endl;
+        }
+
+
+        else if (choice == 2) {
+
+            cout << "\n--------- SHOWS ---------\n";
+
+            for (int i = 0;
+                 i < shows.size();
+                 i++) {
+
+                cout << i + 1 << ". ";
+
+                cout << shows[i]
+                    .getMovie()
+                    ->getTitle();
+
+                cout << " | Screen "
+                     << shows[i]
+                        .getScreen()
+                        ->getScreenNumber();
+
+                cout << " | "
+                     << shows[i]
+                        .getStartTime();
+
+                cout << endl;
+            }
+        }
+
+        else if (choice == 3) {
+
+            int showChoice;
+
+            cout << "\nEnter show number: ";
+            cin >> showChoice;
+
+            if (showChoice < 1 ||
+                showChoice > shows.size()) {
+
+                cout << "Invalid show number.\n";
+            }
+            else {
+
+                shows[showChoice - 1]
+                    .displaySeats();
+            }
+        }
+
+
+        else if (choice == 4) {
+
+            int showChoice;
+
+            cout << "\nEnter show number: ";
+            cin >> showChoice;
+
+            if (showChoice < 1 ||
+                showChoice > shows.size()) {
+
+                cout << "Invalid show number.\n";
+                continue;
+            }
+
+            Show& selectedShow =
+                shows[showChoice - 1];
+
+            selectedShow.displaySeats();
+
+
+            int numberOfSeats;
+
+            cout << "\nHow many seats do you want? ";
+            cin >> numberOfSeats;
+
+
+            if (numberOfSeats <= 0) {
+
+                cout << "Invalid number of seats.\n";
+                continue;
+            }
+
+
+            vector<int> selectedSeats;
+
+
+            for (int i = 0;
+                 i < numberOfSeats;
+                 i++) {
+
+                int seatNumber;
+
+                cout << "Enter seat "
+                     << i + 1
+                     << ": ";
+
+                cin >> seatNumber;
+
+                selectedSeats.push_back(
+                    seatNumber
+                );
+            }
+
+
+            // Create booking
+            currentBooking =
+                bookingService.createBooking(
+                    selectedShow,
+                    selectedSeats
+                );
+
+
+            if (currentBooking == nullptr) {
+                continue;
+            }
+
+
+            cout << "\nTotal Amount: Rs. "
+                 << currentBooking
+                    ->getTotalAmount()
+                 << endl;
+
+
+            cout << "\n--------- PAYMENT ---------\n";
+
+            cout << "1. UPI\n";
+            cout << "2. Card\n";
+            cout << "3. Cash\n";
+
+            int paymentChoice;
+
+            cout << "Choose payment method: ";
+            cin >> paymentChoice;
+
+
+            bookingService.makePayment(
+                *currentBooking,
+                selectedShow,
+                paymentChoice
+            );
+        }
+
+
+
+        else if (choice == 5) {
+
+            if (currentBooking == nullptr ||
+                !currentBooking->isConfirmed()) {
+
+                cout << "\nNo active booking found.\n";
+            }
+            else {
+
+                cout << "\nBooking ID: "
+                     << currentBooking
+                        ->getBookingId()
+                     << endl;
+
+                cout << "Confirm cancellation? (1 = Yes, 0 = No): ";
+
+                int confirm;
+
+                cin >> confirm;
+
+                if (confirm == 1) {
+
+                    // Find the show containing booking
+                    for (Show& show : shows) {
+
+                        if (show.getMovie()
+                                ->getTitle()
+                            ==
+                            currentBooking
+                                ->getMovieName()) {
+
+                            bookingService
+                                .cancelBooking(
+                                    *currentBooking,
+                                    show
+                                );
+
+                            break;
+                        }
+                    }
+                }
+                else {
+
+                    cout << "Cancellation cancelled.\n";
+                }
+            }
+        }
+
+
+        else if (choice == 6) {
+
+            cout << "\nThank you for using "
+                 << "Movie Ticket Booking System!\n";
+        }
+
+
+        else {
+
+            cout << "\nERROR: Invalid menu choice.\n";
+        }
+
+    } while (choice != 6);
+
+    delete currentBooking;
+
+    return 0;
+}
