@@ -1,0 +1,40 @@
+#ifndef SHOWSEAT_CPP
+#define SHOWSEAT_CPP
+
+#include "Seat.cpp"
+
+class ShowSeat {
+private:
+    Seat seat;
+    bool booked;
+
+public:
+    ShowSeat(Seat seat)
+        : seat(seat), booked(false) {}
+
+    bool isAvailable() const {
+        return !booked;
+    }
+
+    void book() {
+        booked = true;
+    }
+
+    void release() {
+        booked = false;
+    }
+
+    int getSeatNumber() const {
+        return seat.getNumber();
+    }
+
+    int getPrice() const {
+        return seat.getPrice();
+    }
+
+    string getTypeName() const {
+        return seat.getTypeName();
+    }
+};
+
+#endif
