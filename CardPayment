@@ -1,0 +1,24 @@
+#ifndef CARDPAYMENT_CPP
+#define CARDPAYMENT_CPP
+
+#include <iostream>
+#include "Payment.cpp"
+
+using namespace std;
+
+class CardPayment : public Payment {
+
+public:
+
+    bool pay(double amount) override {
+
+        cout << "\nProcessing Card payment of Rs. "
+             << amount << "...\n";
+
+        cout << "Card payment successful.\n";
+
+        return true;
+    }
+};
+
+#endif
